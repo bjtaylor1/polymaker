@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -7,21 +6,45 @@ namespace polymaker
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            Parallel.For(-180, 180, async (i, ps) => 
+            if(args.Length != 3)
             {
-                await using var sw = new StreamWriter($"degree{i}.poly");
-                await sw.WriteLineAsync($"degree{i}");
-                await sw.WriteLineAsync($"standard");
-                await sw.WriteLineAsync($"  {i} 90");
-                await sw.WriteLineAsync($"  {i} -90");
-                await sw.WriteLineAsync($"  {i+1} -90");
-                await sw.WriteLineAsync($"  {i+1} 90");
-                await sw.WriteLineAsync($"  {i} 90");
-                await sw.WriteLineAsync($"END");
-                await sw.WriteLineAsync($"END");
-            });
+                await Console.Out.WriteLineAsync("Usage: polymaker [name] [from] [to]");
+            };
+            var name = args[0];
+            var from = int.Parse(args[1]);
+            var to = int.Parse(args[2]);
+            
+            await using var sw = new StreamWriter($"{name}.poly");
+            await sw.WriteLineAsync($"{name}");
+            if(to > from)
+            {
+                await WritePolySection("entirety", sw, from, to);
+            }
+            else
+            {
+                await WritePolySection("area1", sw, -180, to);
+                await WritePolySection("area2", sw, from, 180);
+            }
+            await sw.WriteLineAsync($"END");
+            await sw.FlushAsync();
+        }
+
+        static async Task WritePolySection(string sectionName, StreamWriter sw, int from, int to)
+        {
+            if(from >= to)
+            {
+                throw new ArgumentException("To must be greater than from");
+            }
+
+            await sw.WriteLineAsync($"{sectionName}");
+            await sw.WriteLineAsync($"  {from} 90");
+            await sw.WriteLineAsync($"  {from} -90");
+            await sw.WriteLineAsync($"  {to} -90");
+            await sw.WriteLineAsync($"  {to} 90");
+            await sw.WriteLineAsync($"  {from} 90");
+            await sw.WriteLineAsync($"END");
         }
     }
 }
