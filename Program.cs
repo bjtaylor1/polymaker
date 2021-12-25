@@ -13,9 +13,8 @@ namespace polymaker
                 await Console.Out.WriteLineAsync("Usage: polymaker [name] [from] [to]");
             };
             var name = args[0];
-            var from = int.Parse(args[1]);
-            var to = int.Parse(args[2]);
-            
+            var from = double.Parse(args[1]);
+            var to = double.Parse(args[2]);            
             await using var sw = new StreamWriter($"{name}.poly");
             await sw.WriteLineAsync($"{name}");
             if(to > from)
@@ -31,7 +30,7 @@ namespace polymaker
             await sw.FlushAsync();
         }
 
-        static async Task WritePolySection(string sectionName, StreamWriter sw, int from, int to)
+        static async Task WritePolySection(string sectionName, StreamWriter sw, double from, double to)
         {
             if(from >= to)
             {
